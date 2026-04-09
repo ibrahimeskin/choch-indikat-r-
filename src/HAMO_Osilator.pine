@@ -1,0 +1,16 @@
+//@version=5
+indicator("Hacim Ağırlıklı Momentum Osilatörü", shorttitle="HAMO", overlay=false)
+
+period = input.int(14, title="Ana Periyot", minval=1)
+smooth = input.int(5, title="Düzleştirme (Sinyal)", minval=1)
+
+priceChange = close - close[1]
+volumeMomentum = priceChange * volume
+
+smoothedData = ta.ema(volumeMomentum, period)
+signalLine = ta.sma(smoothedData, smooth)
+
+barColor = signalLine > 0 ? color.new(color.green, 30) : color.new(color.red, 30)
+
+plot(signalLine, title="HAMO", color=barColor, style=plot.style_columns, linewidth=2)
+hline(0, title="Sıfır Hattı", color=color.gray, linestyle=hline.style_dotted)

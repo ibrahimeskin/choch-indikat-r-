@@ -1,0 +1,39 @@
+//@version=5
+indicator("Market Yapısı ve CHOCH", overlay=true, max_labels_count=500, max_lines_count=500)
+
+pivotLength = input.int(5, title="Pivot Hassasiyeti (Uzunluk)", minval=1)
+
+ph = ta.pivothigh(high, pivotLength, pivotLength)
+pl = ta.pivotlow(low, pivotLength, pivotLength)
+
+var float lastPH = na       
+var float lastPL = na       
+var int lastPH_bar = na     
+var int lastPL_bar = na     
+var int trend = 1           
+
+if not na(ph)
+    isHH = na(lastPH) or ph > lastPH 
+    labelText = isHH ? "HH\n(Higher High)" : "LH\n(Lower High)"
+    labelColor = isHH ? color.new(color.blue, 0) : color.new(color.red, 0)
+    label.new(bar_index[pivotLength], ph, text=labelText, style=label.style_label_down, color=labelColor, textcolor=color.white, size=size.small)
+    lastPH := ph
+    lastPH_bar := bar_index[pivotLength]
+
+if not na(pl)
+    isHL = na(lastPL) or pl > lastPL 
+    labelText = isHL ? "HL\n(Higher Low)" : "LL\n(Lower Low)"
+    labelColor = isHL ? color.new(color.blue, 0) : color.new(color.red, 0)
+    label.new(bar_index[pivotLength], pl, text=labelText, style=label.style_label_up, color=labelColor, textcolor=color.white, size=size.small)
+    lastPL := pl
+    lastPL_bar := bar_index[pivotLength]
+
+if trend == 1 and close < lastPL
+    trend := -1 
+    line.new(lastPL_bar, lastPL, bar_index, lastPL, color=color.red, style=line.style_solid, width=2)
+    label.new(bar_index, lastPL, text="CHOCH", style=label.style_label_lower_left, color=color.red, textcolor=color.white, size=size.small)
+
+if trend == -1 and close > lastPH
+    trend := 1 
+    line.new(lastPH_bar, lastPH, bar_index, lastPH, color=color.blue, style=line.style_solid, width=2)
+    label.new(bar_index, lastPH, text="CHOCH", style=label.style_label_upper_left, color=color.blue, textcolor=color.white, size=size.small)
